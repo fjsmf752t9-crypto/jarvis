@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS</title>
+
+    <style>
+        body {
+            background: #050505;
+            color: #00eaff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        h1 {
+            font-size: 50px;
+        }
+
+        p {
+            font-size: 22px;
+        }
+
+        input {
+            width: 70%;
+            padding: 15px;
+            font-size: 18px;
+            border-radius: 10px;
+            border: 2px solid #00eaff;
+            background: #111;
+            color: white;
+        }
+
+        button {
+            padding: 15px 25px;
+            margin-left: 10px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🤖 JARVIS</h1>
+    <p>JARVIS IS ONLINE</p>
+
+    <input id="question" type="text" placeholder="Ask JARVIS something...">
+    <button onclick="askJarvis()">Ask</button>
+
+    <p id="answer"></p>
+
+    <script>
+        function askJarvis() {
+            const question = document.getElementById("question").value;
+
+            if (question.trim() === "") {
+                document.getElementById("answer").innerText =
+                    "Please ask me something.";
+                return;
+            }
+
+            document.getElementById("answer").innerText =
+                "JARVIS heard: " + question;
+        }
+    </script>
+
+</body>
+</html>
