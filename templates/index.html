@@ -52,20 +52,36 @@
 
     <p id="answer"></p>
 
-    <script>
-        function askJarvis() {
-            const question = document.getElementById("question").value;
+    <script>      
 
-            if (question.trim() === "") {
-                document.getElementById("answer").innerText =
-                    "Please ask me something.";
-                return;
-            }
+async function askJarvis() {
+    const question = document.getElementById("question").value.trim();
+    const answer = document.getElementById("answer");
 
-            document.getElementById("answer").innerText =
-                "JARVIS heard: " + question;
-        }
-    </script>
+    if (!question) {
+        answer.innerText = "Please ask me something.";
+        return;
+    }
+
+    answer.innerText = "JARVIS is thinking...";
+
+    try {
+        const response = await fetch("/ask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ question: question })
+        });
+
+        const data = await response.json();
+        answer.innerText = data.answer || "JARVIS couldn't get an answer.";
+    } catch (error) {
+        answer.innerText = "Connection failed. Please try again.";
+    }
+}
+</script>
 
 </body>
 </html>
+
