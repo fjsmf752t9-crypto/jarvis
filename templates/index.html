@@ -68,9 +68,11 @@ async function askJarvis() {
     input.value = "";
 
     // Show JARVIS thinking
-    const botMessage = document.createElement("p");
-    botMessage.textContent = "JARVIS: Thinking...";
-    chat.scrollTop = chat.scrollHeight;
+        const botMessage = document.createElement("p");
+        botMessage.textContent = "JARVIS: Thinking...";
+        chat.appendChild(botMessage);
+        chat.scrollTop = chat.scrollHeight;
+
   try {
     const response = await fetch("/ask", {
       method: "POST",
