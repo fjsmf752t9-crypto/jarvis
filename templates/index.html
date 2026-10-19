@@ -47,11 +47,12 @@
     <h1>🤖 JARVIS</h1>
     <p>JARVIS IS ONLINE</p>
 
-    <input id="question" type="text" placeholder="Ask JARVIS something...">
-    <button onclick="askJarvis()">Ask</button>
+<input id="question" type="text" placeholder="Message JARVIS..." onkeydown="if(event.key==='Enter') askJarvis()">
+<button onclick="askJarvis()">Ask</button>
+<button onclick="startListening()">🎤 Talk</button>
 <div id="chat"></div>
+<button onclick="clearChat()">Clear Chat</button>
     
- 
 <script>
 async function askJarvis() {
     const input = document.getElementById("question");
