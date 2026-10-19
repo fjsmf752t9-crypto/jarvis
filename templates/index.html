@@ -71,24 +71,28 @@ async function askJarvis() {
     const botMessage = document.createElement("p");
     botMessage.textContent = "JARVIS: Thinking...";
     chat.appendChild(botMessage);
+  try {
+    const response = await fetch("/ask", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ question: question })
+    });
 
-    try {
-        const response = await fetch("/ask", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ question: question })
-        });
+    const data = await response.json();
+    const answer = data.answer || "I couldn't get an answer.";
 
-        const data = await response.json();
-        botMessage.textContent =
-            "JARVIS: " + (data.answer || "I couldn't get an answer.");
-    } catch (error) {
-        botMessage.textContent =
-            "JARVIS: Connection failed. Please try again.";
-        
-    }input.focus();
+    botMessage.textContent = "JARVIS: " + answer;
+
+    if ("speechSynthesis" in window) {
+      const speech = new SpeechSynthesisUtterance(answer);
+      window.speechSynthesis.speak(speech);
+    }
+  } catch (error) {
+    botMessage.textContent = "JARVIS: Connection failed. Please try again.";
+  }
+
+  input.focus();
 }
-</script>
-
+   
