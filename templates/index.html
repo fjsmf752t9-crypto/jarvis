@@ -50,7 +50,7 @@
 <input id="question" type="text" placeholder="Message JARVIS..." onkeydown="if(event.key==='Enter') askJarvis()">
 <button onclick="askJarvis()">Ask</button>
 <button onclick="startListening()">🎤 Talk</button>
-<div id="chat"></div>
+<div id="chat" style="max-height: 400px; overflow-y: auto;"></div>
 <button onclick="clearChat()">Clear Chat</button>
     
 <script>
@@ -70,7 +70,7 @@ async function askJarvis() {
     // Show JARVIS thinking
     const botMessage = document.createElement("p");
     botMessage.textContent = "JARVIS: Thinking...";
-    chat.appendChild(botMessage);
+    chat.scrollTop = chat.scrollHeight;
   try {
     const response = await fetch("/ask", {
       method: "POST",
@@ -84,7 +84,8 @@ async function askJarvis() {
     const answer = data.answer || "I couldn't get an answer.";
 
     botMessage.textContent = "JARVIS: " + answer;
-
+chat.scrollTop = chat.scrollHeight;
+    
     if ("speechSynthesis" in window) {
       const speech = new SpeechSynthesisUtterance(answer);
       window.speechSynthesis.speak(speech);
