@@ -92,10 +92,11 @@ chat.scrollTop = chat.scrollHeight;
       const speech = new SpeechSynthesisUtterance(answer);
       window.speechSynthesis.speak(speech);
     }
-  } catch (error) {
-    botMessage.textContent = "JARVIS: Connection failed. Please try again.";
-  }
-
+} catch (error) {
+    console.error("JARVIS error:", error);
+    botMessage.textContent =
+        "JARVIS Error: " + error.message;
+}
   input.focus();
 }
    
