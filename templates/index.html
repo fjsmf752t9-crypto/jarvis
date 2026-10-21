@@ -1,81 +1,173 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS</title>
+    <title>JARVIS AI</title>
 
     <style>
         body {
+            margin: 0;
+            padding: 50px 15px;
             background: #050505;
             color: #00eaff;
             font-family: Arial, sans-serif;
             text-align: center;
-            padding-top: 80px;
         }
 
-        h1 {
-            font-size: 50px;
-        }
+        h1 { font-size: 48px; }
 
-        p {
-            font-size: 22px;
-        }
-
-        input {
-            width: 70%;
+        #question {
+            width: min(80%, 500px);
             padding: 15px;
             font-size: 18px;
-            border-radius: 10px;
             border: 2px solid #00eaff;
+            border-radius: 10px;
             background: #111;
             color: white;
         }
 
         button {
-            padding: 15px 25px;
-            margin-left: 10px;
-            font-size: 18px;
+            padding: 13px 22px;
+            margin: 8px 3px;
+            font-size: 17px;
             border-radius: 10px;
             cursor: pointer;
+        }
+
+        #chat {
+            max-width: 650px;
+            margin: 25px auto;
+            text-align: left;
+            color: white;
+            overflow-wrap: anywhere;
+        }
+
+        .message {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            background: #171717;
         }
     </style>
 </head>
 
 <body>
-
     <h1>🤖 JARVIS</h1>
     <p>JARVIS IS ONLINE</p>
 
-<input id="question" type="text" placeholder="Message JARVIS..." onkeydown="if(event.key==='Enter') askJarvis()">
-<button onclick="askJarvis()">Ask</button>
-<button onclick="startListening()">🎤 Talk</button>
-<div id="chat" style="max-height: 400px; overflow-y: auto;"></div>
-<button onclick="clearChat()">Clear Chat</button>
-    
-<script>
+    <input id="question" type="text"
+           placeholder="Message JARVIS...">
 
-window.askJarvis = async function() {
-    const input = document.querySelector("input, textarea");
-    const question = input?.value.trim();
+    <div>
+        <button id="askButton">Ask</button>
+        <button id="talkButton">🎤 Talk</button>
+        <button id="clearButton">Clear Chat</button>
+    </div>
 
-    if (!question) {
-        alert("Please type a question first!");
-        return;
-    }
+    <div id="chat" aria-live="polite"></div>
 
-    try {
-        const response = await fetch("/ask", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ question })
+    <script>
+        const input = document.getElementById("question");
+        const chat = document.getElementById("chat");
+        const askButton = document.getElementById("askButton");
+        const talkButton = document.getElementById("talkButton");
+        const clearButton = document.getElementById("clearButton");
+
+        function addMessage(sender, text) {
+            const message = document.createElement("p");
+            message.className = "message";
+            message.textContent = sender + ": " + text;
+            chat.appendChild(message);
+            chat.scrollTop = chat.scrollHeight;
+            return message;
+        }
+
+        async function askJarvis() {
+            const question = input.value.trim();
+            if (!question) {
+                input.focus();
+                return;
+            }
+
+            addMessage("You", question);
+            input.value = "";
+            const reply = addMessage("JARVIS", "Thinking...");
+            askButton.disabled = true;
+
+            try {
+                const response = await fetch("/ask", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ question })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.answer || "Server error " + response.status);
+                }
+
+                const answer = data.answer || "I received an empty answer.";
+                reply.textContent = "JARVIS: " + answer;
+
+                if ("speechSynthesis" in window) {
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(
+                        new SpeechSynthesisUtterance(answer)
+                    );
+                }
+            } catch (error) {
+                console.error("JARVIS error:", error);
+                reply.textContent = "JARVIS: " + error.message;
+            } finally {
+                askButton.disabled = false;
+                input.focus();
+            }
+        }
+
+        function clearChat() {
+            chat.replaceChildren();
+            if ("speechSynthesis" in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function startListening() {
+            const SpeechRecognition =
+                window.SpeechRecognition ||
+                window.webkitSpeechRecognition;
+
+            if (!SpeechRecognition) {
+                addMessage("JARVIS",
+                    "Voice recognition is not supported in this browser.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = "en-US";
+            recognition.onresult = event => {
+                input.value = event.results[0][0].transcript;
+                askJarvis();
+            };
+            recognition.onerror = () => {
+                addMessage("JARVIS",
+                    "Microphone error. Check your browser permissions.");
+            };
+            recognition.start();
+        }
+
+        askButton.addEventListener("click", askJarvis);
+        clearButton.addEventListener("click", clearChat);
+        talkButton.addEventListener("click", startListening);
+
+        input.addEventListener("keydown", event => {
+            if (event.key === "Enter") askJarvis();
         });
+    </script>
+</body>
+</html>
 
-        const data = await response.json();
-        alert("JARVIS: " + (data.answer || "No answer received."));
-    } catch (error) {
-        alert("Connection error: " + error.message);
-    }
-}
-
-   
