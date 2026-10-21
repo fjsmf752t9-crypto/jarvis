@@ -54,49 +54,28 @@
 <button onclick="clearChat()">Clear Chat</button>
     
 <script>
+
 async function askJarvis() {
-    const input = document.getElementById("question");
-    const chat = document.getElementById("chat");
-    const question = input.value.trim();
+    const input = document.querySelector("input, textarea");
+    const question = input?.value.trim();
 
-    if (!question) return;
-
-    // Show your question and clear the input
-    const userMessage = document.createElement("p");
-    userMessage.textContent = "You: " + question;
-    chat.appendChild(userMessage);
-    input.value = "";
-
-    // Show JARVIS thinking
-        const botMessage = document.createElement("p");
-        botMessage.textContent = "JARVIS: Thinking...";
-        chat.appendChild(botMessage);
-        chat.scrollTop = chat.scrollHeight;
-
-  try {
-    const response = await fetch("/ask", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ question: question })
-    });
-
-    const data = await response.json();
-    const answer = data.answer || "I couldn't get an answer.";
-
-    botMessage.textContent = "JARVIS: " + answer;
-chat.scrollTop = chat.scrollHeight;
-    
-    if ("speechSynthesis" in window) {
-      const speech = new SpeechSynthesisUtterance(answer);
-      window.speechSynthesis.speak(speech);
+    if (!question) {
+        alert("Please type a question first!");
+        return;
     }
-} catch (error) {
-    console.error("JARVIS error:", error);
-    botMessage.textContent =
-        "JARVIS Error: " + error.message;
+
+    try {
+        const response = await fetch("/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question })
+        });
+
+        const data = await response.json();
+        alert("JARVIS: " + (data.answer || "No answer received."));
+    } catch (error) {
+        alert("Connection error: " + error.message);
+    }
 }
-  input.focus();
-}
+
    
